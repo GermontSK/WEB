@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roman Gerenda - Elektrikár a hodinový manžel | Košice</title>
+  <meta name="description" content="Elektrikár a hodinový manžel - rýchle, spoľahlivé a kvalitné práce s dôrazom na bezpečnosť a detail. Košice a okolie.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            zinc: {
+              400: '#a1a1aa',
+              500: '#71717a',
+              700: '#3f3f46',
+              800: '#27272a',
+              900: '#18181b',
+              950: '#09090b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slide-left { animation: slideInLeft 0.5s ease-out forwards; }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slide-right { animation: slideInRight 0.5s ease-out forwards; }
+    
+    .bg-fixed-pattern {
+      background-image: url('/images/germont-background.png');
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); }
+    .modal.active { display: flex; }
+  </style>
+</head>
+<body class="bg-zinc-900 text-white min-h-screen">
+  
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2">
+        <img src="/images/germont-logo.jpg" alt="Germont Logo" width="40" height="40" class="rounded-lg">
+        <img src="/images/germont-text.png" alt="Germont" width="100" height="24" class="hidden sm:block">
+      </a>
+
+      <div class="hidden md:flex items-center gap-6">
+        <a href="#sluzby" class="text-zinc-400 hover:text-white transition">Služby</a>
+        <button onclick="openCennik()" class="text-zinc-400 hover:text-white transition">Cenník</button>
+        <a href="#onas" class="text-zinc-400 hover:text-white transition">O mne</a>
+        <a href="#kontakt" class="text-zinc-400 hover:text-white transition">Kontakt</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Language Switcher -->
+        <div class="flex items-center gap-1 bg-zinc-800 rounded-full p-1">
+          <button onclick="setLang('sk')" id="lang-sk" class="px-3 py-1 rounded-full text-sm font-medium transition-all bg-green-500 text-white">SK</button>
+          <button onclick="setLang('en')" id="lang-en" class="px-3 py-1 rounded-full text-sm font-medium transition-all text-zinc-400 hover:text-white">EN</button>
+          <button onclick="setLang('de')" id="lang-de" class="px-3 py-1 rounded-full text-sm font-medium transition-all text-zinc-400 hover:text-white">DE</button>
+        </div>
+
+        <a href="tel:0903127272" class="bg-green-500 text-white px-4 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition flex items-center gap-2 animate-pulse">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          <span class="hidden sm:inline">0903 127 272</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cennik Modal -->
+  <div id="cennik-modal" class="modal">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg mx-4 relative">
+      <button onclick="closeCennik()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      
+      <h2 id="cennik-title" class="text-3xl font-bold text-center text-cyan-400 mb-6">CENNÍK PRÁC</h2>
+      
+      <div class="space-y-6 py-4">
+        <div class="flex justify-between items-center animate-slide-left">
+          <span id="cennik-first" class="text-zinc-300 font-medium tracking-wide">PRVÁ ZAČATÁ HODINA</span>
+          <span class="text-3xl font-bold text-cyan-400">60 €</span>
+        </div>
+        
+        <div class="flex justify-between items-center animate-slide-right" style="animation-delay: 100ms">
+          <span id="cennik-next" class="text-zinc-300 font-medium tracking-wide">KAŽDÁ ĎALŠIA HODINA</span>
+          <span class="text-3xl font-bold text-cyan-400">30 €</span>
+        </div>
+        
+        <div class="flex justify-between items-center animate-slide-left" style="animation-delay: 200ms">
+          <span id="cennik-km" class="text-zinc-300 font-medium tracking-wide">DOPRAVA / KILOMETRE</span>
+          <span class="text-3xl font-bold text-cyan-400">0,70 €/km</span>
+        </div>
+        
+        <div class="flex justify-between items-center pt-4 border-t border-zinc-700 animate-slide-right" style="animation-delay: 300ms">
+          <span id="cennik-emergency" class="text-zinc-300 font-medium tracking-wide flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            POHOTOVOSŤ
+          </span>
+          <span class="text-3xl font-bold text-red-500">+30 €</span>
+        </div>
+      </div>
+      
+      <div class="bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r-lg mb-4">
+        <p id="cennik-important" class="text-red-400 font-bold mb-1">DÔLEŽITÉ:</p>
+        <p id="cennik-important-text" class="text-zinc-300 text-sm">Spoplatnená je aj každá obhliadka priestorov, konzultácia a vypracovanie rozpočtu.</p>
+      </div>
+      
+      <div class="bg-zinc-800 border-l-4 border-cyan-500 p-4 rounded-r-lg mb-4">
+        <p id="cennik-note" class="text-zinc-300 text-sm">Hodinová sadzba sa vzťahuje na nešpecifické a drobné práce a služby hodinového manžela. Väčšie realizácie sa riešia na základe vopred vypracovaných cenových ponúk.</p>
+      </div>
+      
+      <p id="cennik-deal" class="text-center text-red-500 font-medium tracking-wide mb-4">PRI DLHODOBEJ SPOLUPRÁCI DOHODA MOŽNÁ.</p>
+      
+      <button onclick="closeCennik()" id="cennik-close" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 rounded-lg transition">Zavrieť</button>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <header class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <div class="absolute inset-0">
+      <img src="/images/roman-gerenda.jpg" alt="Roman Gerenda" class="w-full h-full object-cover object-top">
+      <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-zinc-900/60"></div>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto px-4 py-16 md:py-24">
+      <div class="text-center">
+        <div class="mb-6 flex justify-center animate-fade-in-up">
+          <img src="/images/germont-logo.jpg" alt="Germont Logo" width="120" height="120" class="rounded-2xl shadow-2xl" style="box-shadow: 0 25px 50px -12px rgba(34, 197, 94, 0.3);">
+        </div>
+
+        <h1 id="hero-name" class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 tracking-tight text-white drop-shadow-lg">
+          Roman Gerenda
+        </h1>
+
+        <p id="hero-desc" class="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-zinc-200 leading-relaxed drop-shadow-md animate-fade-in-up" style="animation-delay: 300ms">
+          Elektrikár a hodinový manžel - rýchle, spoľahlivé a kvalitné práce s dôrazom na bezpečnosť a detail.
+        </p>
+
+        <div class="flex justify-center mb-8 animate-fade-in-up" style="animation-delay: 500ms">
+          <a href="tel:0903127272" class="inline-flex items-center justify-center gap-2 bg-green-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-green-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 animate-pulse" style="box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            <span id="call-now">Zavolať teraz</span>
+          </a>
+        </div>
+
+        <p id="availability" class="text-sm text-zinc-300 font-medium mb-6 drop-shadow-md animate-fade-in-up" style="animation-delay: 700ms">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Dostupný: Pon - Ned (8:00 - 18:00) + Pohotovosť 24/7
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-3 animate-fade-in-up" style="animation-delay: 900ms">
+          <span class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-zinc-700">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span id="badge-location">Košice a okolie</span>
+          </span>
+          <span class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-zinc-700">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+            Odbornosť § 23
+          </span>
+          <span class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-zinc-700">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span id="badge-fast">Rýchly výjazd</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Services Section -->
+  <section id="sluzby" class="py-16 md:py-24 px-4 relative">
+    <div class="absolute inset-0 bg-fixed-pattern opacity-10"></div>
+    <div class="absolute inset-0 bg-zinc-800/90"></div>
+    <div class="relative max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 id="services-title" class="text-3xl md:text-4xl font-bold mb-4 text-white">Moje Služby</h2>
+        <p id="services-desc" class="text-zinc-400 text-lg">Všetko pod jednou strechou - od zložitej elektroinštalácie až po vŕtanie poličiek.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Service 1 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Elektroinštalácie (Byty, Domy, Haly, Obchody)</h3>
+          <p class="text-zinc-400">Kompletné silnoprúdové a slaboprúdové rozvody pre novostavby aj rekonštrukcie. Projekty v bytoch, domoch, priemyselných halách a obchodných priestoroch.</p>
+        </div>
+
+        <!-- Service 2 - Emergency -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-red-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-red-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Elektro-pohotovosť 24/7</h3>
+          <p class="text-zinc-400">Rýchly výjazd a okamžité riešenie havarijných stavov, skratov a výpadkov v elektrickej sieti kedykoľvek je to potrebné.</p>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Odborné elektro-práce</h3>
+          <p class="text-zinc-400">Profesionálne frézovanie drážok aj do panelu, žľabovanie, trubkovanie rozvodov a osadenie krabíc.</p>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Dátové siete, Kamery a Vrátniky</h3>
+          <p class="text-zinc-400">Ťahanie dátových káblov (FTP/CAT), montáž a zapájanie dátových zásuviek, osadenie a vyviazanie dátových rozvádzačov (RACK). Inštalácia kamerových systémov a videovrátnikov.</p>
+        </div>
+
+        <!-- Service 5 - Lightning -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-yellow-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-yellow-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Bleskozvody</h3>
+          <p class="text-zinc-400">Odborná montáž, opravy a údržba bleskozvodných sústav pre ochranu vášho objektu.</p>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Nábytok: Výroba na mieru & Montáž</h3>
+          <p class="text-zinc-400">Nielen skladanie hotového nábytku (IKEA a pod.), ale aj zakázková výroba nábytku na mieru podľa vašich predstáv.</p>
+        </div>
+
+        <!-- Service 7 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Hodinový manžel & Opravy</h3>
+          <p class="text-zinc-400">Vŕtanie do stien, maľovanie, tmelenie, vysprávky drážok po frézovaní a bežná údržba domácnosti.</p>
+        </div>
+
+        <!-- Service 8 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Podlahy</h3>
+          <p class="text-zinc-400">Pokládka plávajúcej podlahy, vinylu a osadenie prechodových a obvodových líšt.</p>
+        </div>
+
+        <!-- Service 9 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Oprava a servis rozvádzačov</h3>
+          <p class="text-zinc-400">Výmena starých poistkových skríň za moderné ističové rozvádzače, servis a odborné zapájanie.</p>
+        </div>
+
+        <!-- Service 10 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Zásuvky, vypínače a stmievače</h3>
+          <p class="text-zinc-400">Odborná montáž, výmena a oprava poškodených zásuviek a vypínačov (vrátane inteligentných prvkov).</p>
+        </div>
+
+        <!-- Service 11 -->
+        <div class="group bg-zinc-800/80 backdrop-blur-sm p-6 rounded-2xl border border-zinc-700 hover:border-green-500 hover:shadow-lg transition-all duration-500">
+          <div class="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-white">Moderné osvetlenie</h3>
+          <p class="text-zinc-400">Inštalácia moderného LED osvetlenia, montáž LED pásov (podsvietenie kuchýň, podhľadov), lustrov a inteligentného DALI osvetlenia na mieru.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="onas" class="py-16 md:py-24 px-4 relative">
+    <div class="absolute inset-0 bg-fixed-pattern opacity-10"></div>
+    <div class="absolute inset-0 bg-zinc-900/90"></div>
+    <div class="relative max-w-5xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 id="about-title" class="text-3xl md:text-4xl font-bold mb-6 text-white">Kvalita postavená na skúsenostiach</h2>
+          <p id="about-desc1" class="text-zinc-400 text-lg leading-relaxed mb-4">S menom Roman Gerenda - Germont získavate záruku profesionality v oblasti elektroinštalácií s viac ako 14-ročnou praxou. Moja práca je založená na poctivom prístupe a odborných vedomostiach.</p>
+          <p id="about-desc2" class="text-zinc-400 text-lg leading-relaxed mb-8">Či už potrebujete drobnú opravu v domácnosti, hodinového manžela, alebo kompletnú montáž v novostavbe, ku každej zákazke pristupujem s maximálnou precíznosťou.</p>
+
+          <div class="flex gap-12">
+            <div class="text-center">
+              <div class="text-5xl font-extrabold text-green-500">14+</div>
+              <p id="years-exp" class="text-sm text-zinc-500 mt-1 font-medium">Rokov praxe</p>
+            </div>
+            <div class="text-center">
+              <div class="text-5xl font-extrabold text-green-500">100%</div>
+              <p id="satisfaction" class="text-sm text-zinc-500 mt-1 font-medium">Spokojnosť</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <div class="relative">
+            <div class="absolute -inset-4 bg-gradient-to-r from-green-500 to-cyan-500 rounded-2xl blur-xl opacity-20"></div>
+            <img src="/images/roman-gerenda.jpg" alt="Roman Gerenda pri práci" width="400" height="500" class="relative w-full max-w-md rounded-2xl shadow-2xl border-4 border-zinc-700 object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section class="py-16 md:py-24 px-4 relative">
+    <div class="absolute inset-0 bg-fixed-pattern opacity-10"></div>
+    <div class="absolute inset-0 bg-zinc-800/90"></div>
+    <div class="relative max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 id="reviews-title" class="text-3xl md:text-4xl font-bold text-white">Hodnotenia od klientov</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-2xl border border-zinc-700 hover:border-green-500 transition-colors">
+          <div class="flex gap-1 mb-4">
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+          </div>
+          <p class="text-zinc-300 italic mb-6 text-lg leading-relaxed">"Ďakujeme za promptnosť a precíznu prácu s ochotou hľadať čo najlepšie riešenia! ;-)"</p>
+          <p class="font-semibold text-white">— Ľubica Mokrišová</p>
+        </div>
+
+        <div class="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-2xl border border-zinc-700 hover:border-green-500 transition-colors">
+          <div class="flex gap-1 mb-4">
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            <svg class="w-5 h-5 text-green-400 fill-green-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+          </div>
+          <p class="text-zinc-300 italic mb-6 text-lg leading-relaxed">"Spokojnosť, rýchle riešenie, odporúčam"</p>
+          <p class="font-semibold text-white">— Lucia Dovičáková</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="kontakt" class="py-16 md:py-24 px-4 relative">
+    <div class="absolute inset-0 bg-fixed-pattern opacity-10"></div>
+    <div class="absolute inset-0 bg-zinc-900/90"></div>
+    <div class="relative max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 id="contact-title" class="text-3xl md:text-4xl font-bold text-white">Potrebujete pomôcť?</h2>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="text-center p-4">
+          <div class="bg-zinc-700/80 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          </div>
+          <h4 id="address-label" class="font-semibold mb-1 text-white">Adresa</h4>
+          <p class="text-zinc-400 text-sm">Učňovská 2<br>Košice - Šaca, 040 15</p>
+        </div>
+
+        <div class="text-center p-4">
+          <div class="bg-zinc-700/80 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <h4 id="available-label" class="font-semibold mb-1 text-white">Dostupnosť</h4>
+          <p class="text-zinc-400 text-sm">Pondelok - Nedeľa<br>8:00 - 18:00<br>+ Pohotovosť 24/7</p>
+        </div>
+
+        <div class="text-center p-4">
+          <div class="bg-zinc-700/80 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          </div>
+          <h4 id="phone-label" class="font-semibold mb-1 text-white">Telefón</h4>
+          <a href="tel:0903127272" class="text-zinc-400 text-sm hover:text-green-400 transition">0903 127 272</a>
+        </div>
+
+        <div class="text-center p-4">
+          <div class="bg-zinc-700/80 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          </div>
+          <h4 class="font-semibold mb-1 text-white">E-mail</h4>
+          <a href="mailto:germontkosice@gmail.com" class="text-zinc-400 text-sm hover:text-green-400 transition">germontkosice@gmail.com</a>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-4 mb-8">
+        <a href="sms:0903127272" class="inline-flex items-center gap-2 bg-zinc-700/80 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-600 transition hover:scale-105">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+          <span id="send-sms">Napísať SMS</span>
+        </a>
+        <a href="https://wa.me/421903127272" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition hover:scale-105">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a href="viber://chat?number=421903127272" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-full font-medium hover:bg-purple-700 transition hover:scale-105">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.398.002C9.473.028 5.331.344 3.014 2.467 1.294 4.182.635 6.742.5 9.932c-.136 3.19-.303 9.166 5.478 10.914l.007.002h.005l-.003 2.487s-.035.997.62 1.202c.792.247 1.257-.51 2.015-1.326.415-.448.99-1.108 1.423-1.613 3.925.327 6.945-.424 7.288-.537.79-.261 5.258-.83 5.987-6.77.75-6.126-.359-9.998-2.352-11.748l-.002-.001c-.596-.54-2.982-2.267-8.476-2.505a22.1 22.1 0 00-1.092-.035z"/></svg>
+          Viber
+        </a>
+      </div>
+
+      <div class="text-center">
+        <a href="tel:0903127272" class="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-12 py-5 rounded-full font-bold text-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 animate-pulse" style="box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          <span id="call-now-big">ZAVOLAŤ TERAZ</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-zinc-950 text-zinc-500 py-8">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <img src="/images/germont-text.png" alt="Germont" width="150" height="36">
+      </div>
+      <p class="text-sm">© 2026 Roman Gerenda - Germont. Všetky práva vyhradené.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Translations
+    const translations = {
+      sk: {
+        "hero-desc": "Elektrikár a hodinový manžel - rýchle, spoľahlivé a kvalitné práce s dôrazom na bezpečnosť a detail.",
+        "call-now": "Zavolať teraz",
+        "availability": "Dostupný: Pon - Ned (8:00 - 18:00) + Pohotovosť 24/7",
+        "badge-location": "Košice a okolie",
+        "badge-fast": "Rýchly výjazd",
+        "services-title": "Moje Služby",
+        "services-desc": "Všetko pod jednou strechou - od zložitej elektroinštalácie až po vŕtanie poličiek.",
+        "about-title": "Kvalita postavená na skúsenostiach",
+        "about-desc1": "S menom Roman Gerenda - Germont získavate záruku profesionality v oblasti elektroinštalácií s viac ako 14-ročnou praxou. Moja práca je založená na poctivom prístupe a odborných vedomostiach.",
+        "about-desc2": "Či už potrebujete drobnú opravu v domácnosti, hodinového manžela, alebo kompletnú montáž v novostavbe, ku každej zákazke pristupujem s maximálnou precíznosťou.",
+        "years-exp": "Rokov praxe",
+        "satisfaction": "Spokojnosť",
+        "reviews-title": "Hodnotenia od klientov",
+        "contact-title": "Potrebujete pomôcť?",
+        "address-label": "Adresa",
+        "available-label": "Dostupnosť",
+        "phone-label": "Telefón",
+        "send-sms": "Napísať SMS",
+        "call-now-big": "ZAVOLAŤ TERAZ",
+        "cennik-title": "CENNÍK PRÁC",
+        "cennik-first": "PRVÁ ZAČATÁ HODINA",
+        "cennik-next": "KAŽDÁ ĎALŠIA HODINA",
+        "cennik-km": "DOPRAVA / KILOMETRE",
+        "cennik-emergency": "POHOTOVOSŤ",
+        "cennik-important": "DÔLEŽITÉ:",
+        "cennik-important-text": "Spoplatnená je aj každá obhliadka priestorov, konzultácia a vypracovanie rozpočtu.",
+        "cennik-note": "Hodinová sadzba sa vzťahuje na nešpecifické a drobné práce a služby hodinového manžela. Väčšie realizácie sa riešia na základe vopred vypracovaných cenových ponúk.",
+        "cennik-deal": "PRI DLHODOBEJ SPOLUPRÁCI DOHODA MOŽNÁ.",
+        "cennik-close": "Zavrieť"
+      },
+      en: {
+        "hero-desc": "Electrician and handyman - fast, reliable and quality work with focus on safety and detail.",
+        "call-now": "Call now",
+        "availability": "Available: Mon - Sun (8:00 - 18:00) + Emergency 24/7",
+        "badge-location": "Košice and surroundings",
+        "badge-fast": "Fast arrival",
+        "services-title": "My Services",
+        "services-desc": "Everything under one roof - from complex electrical installations to drilling shelves.",
+        "about-title": "Quality built on experience",
+        "about-desc1": "With the name Roman Gerenda - Germont you get a guarantee of professionalism in the field of electrical installations with more than 14 years of experience. My work is based on an honest approach and professional knowledge.",
+        "about-desc2": "Whether you need a minor repair in your home, a handyman, or a complete installation in a new building, I approach every job with maximum precision.",
+        "years-exp": "Years of experience",
+        "satisfaction": "Satisfaction",
+        "reviews-title": "Customer reviews",
+        "contact-title": "Need help?",
+        "address-label": "Address",
+        "available-label": "Availability",
+        "phone-label": "Phone",
+        "send-sms": "Send SMS",
+        "call-now-big": "CALL NOW",
+        "cennik-title": "PRICE LIST",
+        "cennik-first": "FIRST STARTED HOUR",
+        "cennik-next": "EACH ADDITIONAL HOUR",
+        "cennik-km": "TRANSPORT / KILOMETERS",
+        "cennik-emergency": "EMERGENCY",
+        "cennik-important": "IMPORTANT:",
+        "cennik-important-text": "Each inspection, consultation and preparation of the budget is also charged.",
+        "cennik-note": "The hourly rate applies to non-specific and small jobs and handyman services. Larger projects are based on pre-prepared price offers.",
+        "cennik-deal": "LONG-TERM COOPERATION DISCOUNT POSSIBLE.",
+        "cennik-close": "Close"
+      },
+      de: {
+        "hero-desc": "Elektriker und Handwerker - schnelle, zuverlässige und qualitativ hochwertige Arbeit mit Fokus auf Sicherheit und Detail.",
+        "call-now": "Jetzt anrufen",
+        "availability": "Verfügbar: Mo - So (8:00 - 18:00) + Notdienst 24/7",
+        "badge-location": "Košice und Umgebung",
+        "badge-fast": "Schnelle Ankunft",
+        "services-title": "Meine Dienstleistungen",
+        "services-desc": "Alles unter einem Dach - von komplexen Elektroinstallationen bis zum Bohren von Regalen.",
+        "about-title": "Qualität auf Erfahrung gebaut",
+        "about-desc1": "Mit dem Namen Roman Gerenda - Germont erhalten Sie eine Garantie für Professionalität im Bereich Elektroinstallationen mit mehr als 14 Jahren Erfahrung. Meine Arbeit basiert auf einem ehrlichen Ansatz und Fachwissen.",
+        "about-desc2": "Ob Sie eine kleine Reparatur in Ihrem Zuhause, einen Handwerker oder eine komplette Installation in einem Neubau benötigen, ich gehe jede Arbeit mit maximaler Präzision an.",
+        "years-exp": "Jahre Erfahrung",
+        "satisfaction": "Zufriedenheit",
+        "reviews-title": "Kundenbewertungen",
+        "contact-title": "Brauchen Sie Hilfe?",
+        "address-label": "Adresse",
+        "available-label": "Verfügbarkeit",
+        "phone-label": "Telefon",
+        "send-sms": "SMS senden",
+        "call-now-big": "JETZT ANRUFEN",
+        "cennik-title": "PREISLISTE",
+        "cennik-first": "ERSTE ANGEFANGENE STUNDE",
+        "cennik-next": "JEDE WEITERE STUNDE",
+        "cennik-km": "TRANSPORT / KILOMETER",
+        "cennik-emergency": "NOTDIENST",
+        "cennik-important": "WICHTIG:",
+        "cennik-important-text": "Jede Besichtigung, Beratung und Budgeterstellung wird ebenfalls berechnet.",
+        "cennik-note": "Der Stundensatz gilt für unspezifische und kleine Arbeiten und Handwerkerleistungen. Größere Projekte basieren auf vorab erstellten Preisangeboten.",
+        "cennik-deal": "RABATT BEI LANGFRISTIGER ZUSAMMENARBEIT MÖGLICH.",
+        "cennik-close": "Schließen"
+      }
+    };
+
+    let currentLang = 'sk';
+
+    function setLang(lang) {
+      currentLang = lang;
+      
+      // Update language buttons
+      ['sk', 'en', 'de'].forEach(l => {
+        const btn = document.getElementById('lang-' + l);
+        if (l === lang) {
+          btn.className = 'px-3 py-1 rounded-full text-sm font-medium transition-all bg-green-500 text-white';
+        } else {
+          btn.className = 'px-3 py-1 rounded-full text-sm font-medium transition-all text-zinc-400 hover:text-white';
+        }
+      });
+
+      // Update all translatable elements
+      const t = translations[lang];
+      Object.keys(t).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) {
+          if (key === 'availability') {
+            el.innerHTML = '<svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' + t[key];
+          } else {
+            el.textContent = t[key];
+          }
+        }
+      });
+    }
+
+    function openCennik() {
+      document.getElementById('cennik-modal').classList.add('active');
+    }
+
+    function closeCennik() {
+      document.getElementById('cennik-modal').classList.remove('active');
+    }
+
+    // Close modal on background click
+    document.getElementById('cennik-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCennik();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeCennik();
+      }
+    });
+  </script>
+</body>
+</html>
